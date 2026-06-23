@@ -1,0 +1,8 @@
+# Keep server/db directory tracked
+!server/db
+
+# API key - auto-generated on first start, do not commit
+.rcore_api_key
+
+# Zip archives
+*.zip
