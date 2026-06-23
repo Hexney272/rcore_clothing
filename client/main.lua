@@ -1,1 +1,2 @@
-local L0_1, L1_1
+-- Main client entry point
+-- Core initialization is handled by other client modules loaded via fxmanifest.lua

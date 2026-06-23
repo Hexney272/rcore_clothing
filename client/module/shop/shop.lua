@@ -9,12 +9,12 @@ local isPreviewingFaceFeatures = false
 local isPreviewingEyeColor = false
 local isPreviewingHair = false
 local isPreviewingHeadOverlay = false
-local currentOverlayIndex = nil
+local currentOverlayIndex = false
 local isPreviewingPedModel = false
 
 -- Ped model constants
-local FEMALE_PED_MODEL = 1885233650
-local MALE_PED_MODEL = -1667301416
+local MALE_PED_MODEL = 1885233650
+local FEMALE_PED_MODEL = -1667301416
 
 -- Prop component offset
 local PROP_COMPONENT_OFFSET = 100

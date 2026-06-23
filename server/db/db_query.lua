@@ -69,7 +69,7 @@ function GetAvailableComponentsInShop(pedModel, shopName, showEverything, changi
     local data = MySQL.Sync.fetchAll([[
         SELECT DISTINCT rcore_clothing_items.component_id
         FROM rcore_clothing_items
-        WHERE  rcore_clothing_items.game_build <= @gameBuild
+        WHERE rcore_clothing_items.ped_model = @pedModel AND rcore_clothing_items.game_build <= @gameBuild
     ]], {
         ['@gameBuild'] = GetGameBuild(),
         ['@pedModel'] = pedModel,

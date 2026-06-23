@@ -85,6 +85,14 @@ function ApplyPedClothingOutfit(pedEntity, outfitData, keepCurrentVariations)
             local componentId = tonumber(componentIdStr)
             local itemData = UsableHashToData(pedEntity, nameHash)
             
+            -- Resolve decal data for this component
+            local decCol = nil
+            local decName = nil
+            if outfitData.decals and outfitData.decals[componentIdStr] then
+                decCol = outfitData.decals[componentIdStr].collection
+                decName = outfitData.decals[componentIdStr].name
+            end
+            
             if itemData and itemData.componentId then
                 ApplyPedClothingItem(pedEntity, {
                     name_hash = nameHash,

@@ -32,15 +32,25 @@ CreateThread(function()
             if xPlayer or not Config.UseGetIdentifierFallback then
                 return xPlayer.identifier
             else
-                while true do
+                local maxAttempts = 30 -- Max 30 seconds waiting
+                local attempts = 0
+                while attempts < maxAttempts do
                     local xPlayer = ESX.GetPlayerFromId(serverId)
 
                     if not xPlayer then
+                        -- Check if player is still connected
+                        if not GetPlayerName(serverId) then
+                            print("^1[rcore_clothing] Player " .. serverId .. " disconnected during identifier lookup^7")
+                            return nil
+                        end
+                        attempts = attempts + 1
                         Wait(1000)
                     else
                         return xPlayer.identifier
                     end
                 end
+                print("^1[rcore_clothing] Timed out waiting for player " .. serverId .. " identifier^7")
+                return nil
             end
         end
 
@@ -158,11 +168,13 @@ CreateThread(function()
             if xPlayer then
                 if moneyType == 'cash' then
                     xPlayer.removeMoney(amount)
+                    return true
                 elseif moneyType == 'bank' then
                     xPlayer.removeAccountMoney('bank', amount)
+                    return true
                 end
             end
-            return 0
+            return false
         end
     end
 end)

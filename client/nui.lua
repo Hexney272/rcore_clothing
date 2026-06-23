@@ -1,1 +1,2 @@
-local L0_1, L1_1
+-- NUI bridge module
+-- This file is intentionally minimal; NUI communication is handled via the compiled UI bundle (client/ui/)
