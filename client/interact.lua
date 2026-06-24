@@ -104,7 +104,7 @@ CreateThread(function()
     for index, shop in ipairs(Config.ClothingShops) do
         local style = 'clothing'
         local title = shop.label or _U("interact.shop")
-        local icon = 'real_holo_clothing'
+        local icon = 'clothing'
 
         if shop.type == 'barber' then
             title = shop.label or _U("interact.barber")
@@ -153,7 +153,7 @@ CreateThread(function()
             coords = vec3(room.pos.x, room.pos.y, room.pos.z),
             title = title,
             helpText = helpText,
-            icon = 'real_holo_clothing',
+            icon = 'clothing',
             useImage = true,
             imageScale = 2.5,
             event = 'rcore_clothing:marker:openJobRoom',
@@ -172,7 +172,7 @@ CreateThread(function()
             coords = vec3(room.pos.x, room.pos.y, room.pos.z),
             title = title,
             helpText = helpText,
-            icon = 'real_holo_clothing',
+            icon = 'clothing',
             useImage = true,
             imageScale = 2.5,
             event = 'rcore_clothing:marker:openChangingRoom',
