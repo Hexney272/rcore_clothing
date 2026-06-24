@@ -1,7 +1,7 @@
 -- 📙 Documentation: https://documentation.rcore.cz/paid-resources/rcore_clothing
 
 Config = {
-    Locale = 'en', -- Available en, de, fr, es, it
+    Locale = 'hu', -- Available en, de, fr, es, it, hu
 
     Commands = {
         Skin = 'skin',
