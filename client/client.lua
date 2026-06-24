@@ -159,6 +159,10 @@ AddEventHandler('rcore_clothing:onClothingShopOpened', function()
             TriggerEvent("__cfx_export_qs-inventory_SetInClothing", true)
         end
     end
+    -- Markerek elrejtése amíg a menü nyitva van
+    if GetResourceState('real_markers') == 'started' then
+        exports['real_markers']:SuppressMarkers(true)
+    end
 end)
 
 AddEventHandler('rcore_clothing:onClothingShopClosed', function()
@@ -168,6 +172,10 @@ AddEventHandler('rcore_clothing:onClothingShopClosed', function()
         else
             TriggerEvent("__cfx_export_qs-inventory_SetInClothing", false)
         end
+    end
+    -- Markerek visszakapcsolása
+    if GetResourceState('real_markers') == 'started' then
+        exports['real_markers']:SuppressMarkers(false)
     end
 end)
 
