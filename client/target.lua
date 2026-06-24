@@ -39,18 +39,31 @@ function CreateTargetZone(coords, length, width, heading, options)
         -- Adjust coordinates for ox_target (lower Z by 0.5)
         local adjustedCoords = vector3(coords.x, coords.y, coords.z - 0.5)
         
-        local zoneData = {
+        -- Convert qb-target style options to ox_target format
+        local oxOptions = {}
+        for _, opt in pairs(options) do
+            table.insert(oxOptions, {
+                name = targetId .. "_" .. (opt.eventAction or "action"),
+                label = opt.label,
+                icon = opt.icon or 'fas fa-tshirt',
+                distance = opt.distance or 2.0,
+                canInteract = opt.canInteract,
+                onSelect = function(data)
+                    if opt.event then
+                        TriggerEvent(opt.event, opt)
+                    end
+                end,
+            })
+        end
+        
+        local zoneId = exports.ox_target:addBoxZone({
             name = targetId,
             coords = adjustedCoords,
             size = vector3(width, length, 2.0),
             rotation = heading,
-            minZ = adjustedCoords.z - length,
-            maxZ = adjustedCoords.z + length,
-            options = options,
-            distance = 5.0
-        }
-        
-        local zoneId = exports.ox_target:addBoxZone(zoneData)
+            debug = false,
+            options = oxOptions,
+        })
         registeredZones[zoneId] = true
     elseif compatibleTargets[Config.TargetScript] then
         local zoneConfig = {

@@ -270,6 +270,19 @@ CreateThread(function()
         return
     end
 
+    -- Verify that the target resource is actually running
+    local resourceName = TargetTypeResourceName[Config.TargetScript]
+    if resourceName == "none" then
+        print("^1[rcore_clothing] TargetScript is set but no valid target type selected^7")
+        return
+    end
+    
+    if GetResourceState(resourceName) ~= 'started' and GetResourceState(resourceName) ~= 'starting' then
+        print("^1[rcore_clothing] Target resource '" .. resourceName .. "' is not running! Falling back to markers.^7")
+        useMarkers = true
+        return
+    end
+
     Wait(1000)
 
     for index, shop in ipairs(Config.ClothingShops) do
