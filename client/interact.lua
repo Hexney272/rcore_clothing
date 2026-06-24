@@ -118,6 +118,8 @@ CreateThread(function()
             title = title,
             helpText = helpText,
             icon = icon,
+            useImage = true,
+            imageScale = 2.5,
             event = 'rcore_clothing:marker:openShop',
             args = { shopIndex = index },
         }
@@ -152,6 +154,8 @@ CreateThread(function()
             title = title,
             helpText = helpText,
             icon = 'real_holo_clothing',
+            useImage = true,
+            imageScale = 2.5,
             event = 'rcore_clothing:marker:openJobRoom',
             args = { roomIndex = index },
             visibility = { jobs = jobPerms },
@@ -169,6 +173,8 @@ CreateThread(function()
             title = title,
             helpText = helpText,
             icon = 'real_holo_clothing',
+            useImage = true,
+            imageScale = 2.5,
             event = 'rcore_clothing:marker:openChangingRoom',
             args = { roomIndex = index },
         })
