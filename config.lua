@@ -322,7 +322,7 @@ Config = {
         object = 'esx:getSharedObject',            --[ ESX = 'esx:getSharedObject' / QBCore = 'QBCore:GetObject' ] Set the shared object event, if left blank, default will be used (deprecated for QBCore)
         resourceName = 'es_extended',      -- [ ESX = 'es_extended' / QBCore = 'qb-core' ] Set the resource name, if left blank, automatic detection will be performed
     },
-    TargetScript = 4,           -- [ 0 = None - using markers, 1 = Qtarget / 2 = Bt-target / 3 = Qb-target / 4 = Ox-target ]
+    TargetScript = 0,           -- [ 0 = None - using markers, 1 = Qtarget / 2 = Bt-target / 3 = Qb-target / 4 = Ox-target ]
 
     UseFrameworkNotify = false, -- If true, framework notification will be used instead of UI notifications, recommended to leave at false as this script only needs to notify while in UI
 
