@@ -103,12 +103,14 @@ CreateThread(function()
     -- Ruhaboltok regisztrálása
     for index, shop in ipairs(Config.ClothingShops) do
         local style = 'clothing'
-        local title = shop.label or _U("interact.shop")
+        local title = 'Ruhabolt'
         local icon = 'clothing'
 
         if shop.type == 'barber' then
-            title = shop.label or _U("interact.barber")
+            title = 'Borbély'
             icon = 'scissors'
+        elseif shop.type == 'tattoo' or shop.type == 'tattoos' then
+            title = 'Tetoválás'
         end
 
         local helpText = '~INPUT_CONTEXT~ ' .. title
@@ -120,6 +122,7 @@ CreateThread(function()
             icon = icon,
             useImage = true,
             imageScale = 2.5,
+            zOffset = 0.85,
             event = 'rcore_clothing:marker:openShop',
             args = { shopIndex = index },
         }
@@ -156,6 +159,7 @@ CreateThread(function()
             icon = 'clothing',
             useImage = true,
             imageScale = 2.5,
+            zOffset = 0.85,
             event = 'rcore_clothing:marker:openJobRoom',
             args = { roomIndex = index },
             visibility = { jobs = jobPerms },
@@ -170,11 +174,12 @@ CreateThread(function()
         exports['real_markers']:RegisterImageMarker('rcore_changing_' .. index, {
             style = 'clothing',
             coords = vec3(room.pos.x, room.pos.y, room.pos.z),
-            title = title,
+            title = 'Öltöző',
             helpText = helpText,
             icon = 'clothing',
             useImage = true,
             imageScale = 2.5,
+            zOffset = 0.85,
             event = 'rcore_clothing:marker:openChangingRoom',
             args = { roomIndex = index },
         })
