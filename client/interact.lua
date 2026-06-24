@@ -1,18 +1,7 @@
-local useMarkers = Config.TargetScript == 0
+-- rcore_clothing interakció — real_markers alapú rendszer
+-- A real_markers script exportjait használja a markerek megjelenítéséhez
 
-local nearShops = {}
-local nearChangingRooms = {}
-local nearJobChangingRooms = {}
-
-local isRenderingMarkers = false
-local hideAllMarkers = false
-
-local MARKER_HELP_TYPES = {
-    SHOP = 'R_CLO_OPEN',
-    JOB = 'R_CLO_OPEN_JOB',
-    CHANGING = 'R_CLO_OPEN_CHANGING',
-    BARBER = 'R_CLO_OPEN_BARBER',
-}
+local markersRegistered = false
 
 local function openShop(shop)
     if not shop.config then
@@ -30,7 +19,7 @@ local function openShop(shop)
     if Config.IdModeHasEverything then
         shop.config.modifiers[SHOP_MODIFIERS.ID_MODE_HAS_EVERYTHING] = true
     end
- 
+
     SetPedInShopHeading(shop.pos)
     RequestOpenClothingShopUI(shop.type, shop.config)
 end
@@ -52,313 +41,151 @@ local function openJobChangingRoom(room)
     RequestOpenClothingShopUI(room.type, room.config)
 end
 
-local function getPositionGround(pos)
-    local found, z = GetGroundZFor_3dCoord(pos.x, pos.y, pos.z, false)
-
-    if found then
-        return vector3(pos.x, pos.y, z + 0.05)
-    else
-        return pos.xyz
-    end
-end
-
-local function drawShopMarker(position, playerCoords, type, onMarkerInteract, scale)
-    local realDistCoords = position + vector3(0.0, 0.0, 1.0)
-    local realDist = #(realDistCoords - playerCoords)
-
-    scale = scale or Config.Checkpoint.scale
-
-    if realDist < scale.x / 2 then
-        DisplayHelpTextThisFrame(type, false)
-
-        if IsControlJustPressed(0, 38) then
-            onMarkerInteract()
-        end
-    end
-
-    DrawMarker(
-        Config.Checkpoint.type,
-        position,
-        0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0,
-        scale.x, scale.y, scale.z,
-        Config.Checkpoint.color[1], Config.Checkpoint.color[2], Config.Checkpoint.color[3],
-        Config.Checkpoint.color[4],
-        false, false, false, false, nil, nil, false
-    )
-end
-
-local function renderMarkers()
-    if isRenderingMarkers then
-        return
-    end
-
-    if not useMarkers then
-        return
-    end
-
-    if #nearShops == 0 and #nearJobChangingRooms == 0 and #nearChangingRooms == 0 then
-        return
-    end
-
-    isRenderingMarkers = true
-
-    local coords = GetEntityCoords(PlayerPed)
-
-    CreateThread(function()
-        while isRenderingMarkers do
-            coords = GetEntityCoords(PlayerPed)
-
-            Wait(500)
-        end
-    end)
-
-    CreateThread(function()
-        while isRenderingMarkers do
-            local myJob, _ = GetPlayersJobName()
-
-            for _, k in ipairs(nearShops) do
-                local shop = Config.ClothingShops[k]
-                local hasJob = false
-
-                for _, job in ipairs(shop.jobs or {}) do
-                    if job == myJob then
-                        hasJob = true
-                        break
-                    end
-                end
-                
-                if not shop.jobs or #shop.jobs == 0 or hasJob then
-                    shop.posGround = shop.posGround or getPositionGround(shop.pos)
-                    Config.ClothingShops[k].posGround = shop.posGround
-
-                    local type = MARKER_HELP_TYPES.SHOP
-                    if shop.type == "barber" then
-                        type = MARKER_HELP_TYPES.BARBER
-                    end
-
-                    drawShopMarker(shop.posGround, coords, type, function()
-                        openShop(shop)
-                    end, shop.scale)
-                end
-            end
-
-            if #nearJobChangingRooms ~= 0 then
-                for _, k in ipairs(nearJobChangingRooms) do
-                    local room = Config.JobChangingRooms[k]
-
-                    for _, job in pairs(room.jobs) do
-                        if job == myJob then
-                            room.posGround = room.posGround or getPositionGround(room.pos)
-                            Config.JobChangingRooms[k].posGround = room.posGround
-
-                            drawShopMarker(
-                                room.posGround, coords, MARKER_HELP_TYPES.JOB, function()
-                                    openJobChangingRoom(room)
-                                end, room.scale)
-                            break
-                        end
-                    end
-                end
-            end
-
-            for _, k in ipairs(nearChangingRooms) do
-                local room = Config.ChangingRooms[k]
-                room.posGround = room.posGround or getPositionGround(room.pos)
-                Config.ChangingRooms[k].posGround = room.posGround
-
-                drawShopMarker(room.posGround, coords, MARKER_HELP_TYPES.CHANGING, function()
-                    SetPedInShopHeading(room.pos)
-                    TriggerEvent('rcore_clothing:openChangingRoom')
-                end, room.scale)
-            end
-
-            Wait(0)
-        end
-    end)
-end
-
 function SetPedInShopHeading(coords)
     local ped = PlayerPedId()
-
     ClearPedTasksImmediately(ped)
     SetEntityHeading(ped, coords.w)
 end
 
 function StartRenderingMarkers()
-    hideAllMarkers = false
-    renderMarkers()
+    -- real_markers kezeli a renderelést, nem kell külön
 end
 
 function StopRenderingMarkers()
-    isRenderingMarkers = false
-    hideAllMarkers = true
+    -- real_markers kezeli a renderelést, nem kell külön
 end
 
-CreateThread(function()
-    if not useMarkers or (#Config.ClothingShops == 0 and #Config.JobChangingRooms == 0 and #Config.ChangingRooms == 0) then
-        return
-    end
-
-    AddTextEntry('R_CLO_OPEN', '~INPUT_PICKUP~ ' .. _U("interact.shop"))
-    AddTextEntry('R_CLO_OPEN_JOB', '~INPUT_PICKUP~ ' .. _U("interact.job_changing_room"))
-    AddTextEntry('R_CLO_OPEN_CHANGING', '~INPUT_PICKUP~ ' .. _U("interact.changing_room"))
-    AddTextEntry('R_CLO_OPEN_BARBER', '~INPUT_PICKUP~ ' .. _U("interact.barber"))
-
-    while true do
-        nearShops = {}
-        nearJobChangingRooms = {}
-        nearChangingRooms = {}
-
-        local coords = GetEntityCoords(PlayerPed)
-
-        for k, v in pairs(Config.ClothingShops) do
-            local dist = #(coords - v.pos.xyz)
-
-            if dist < 20.0 then
-                table.insert(nearShops, k)
-            end
-        end
-
-        for k, v in pairs(Config.JobChangingRooms) do
-            local dist = #(coords - v.pos.xyz)
-
-            if dist < 20.0 then
-                table.insert(nearJobChangingRooms, k)
-            end
-        end
-
-        for k, v in pairs(Config.ChangingRooms) do
-            local dist = #(coords - v.pos.xyz)
-
-            if dist < 20.0 then
-                table.insert(nearChangingRooms, k)
-            end
-        end
-
-        if (#nearShops > 0 or #nearJobChangingRooms > 0 or #nearChangingRooms > 0) and not hideAllMarkers then
-            renderMarkers()
-        else
-            isRenderingMarkers = false
-        end
-
-        Wait(5000)
+-- Interakciós event handler-ek
+RegisterNetEvent('rcore_clothing:marker:openShop', function(markerId, args)
+    local shopIndex = args and args.shopIndex
+    if not shopIndex then return end
+    local shop = Config.ClothingShops[shopIndex]
+    if shop then
+        openShop(shop)
     end
 end)
 
-RegisterNetEvent('rcore_clothing:target', function(data)
-    if not data then
-        return
-    end
-
-    if data.eventAction == "open_clothing_shop" then
-        local shop = Config.ClothingShops[data.shopIndex]
-        
-        openShop(shop)
-    elseif data.eventAction == "open_job_changing_room" then
-        local room = Config.JobChangingRooms[data.shopIndex]
+RegisterNetEvent('rcore_clothing:marker:openJobRoom', function(markerId, args)
+    local roomIndex = args and args.roomIndex
+    if not roomIndex then return end
+    local room = Config.JobChangingRooms[roomIndex]
+    if room then
         openJobChangingRoom(room)
-    elseif data.eventAction == "open_changing_room" then
-        local room = Config.ChangingRooms[data.shopIndex]
+    end
+end)
+
+RegisterNetEvent('rcore_clothing:marker:openChangingRoom', function(markerId, args)
+    local roomIndex = args and args.roomIndex
+    if not roomIndex then return end
+    local room = Config.ChangingRooms[roomIndex]
+    if room then
         SetPedInShopHeading(room.pos)
         TriggerEvent('rcore_clothing:openChangingRoom')
     end
 end)
 
+-- Markerek regisztrálása a real_markers rendszerbe
 CreateThread(function()
-    if useMarkers then
+    -- Várjuk meg, hogy a real_markers elinduljon
+    local timeout = 0
+    while GetResourceState('real_markers') ~= 'started' and timeout < 10 do
+        Wait(1000)
+        timeout = timeout + 1
+    end
+
+    if GetResourceState('real_markers') ~= 'started' then
+        print("^1[rcore_clothing] real_markers resource nincs elindítva! A markerek nem fognak megjelenni.^7")
         return
     end
 
-    -- Verify that the target resource is actually running
-    local resourceName = TargetTypeResourceName[Config.TargetScript]
-    if resourceName == "none" then
-        print("^1[rcore_clothing] TargetScript is set but no valid target type selected^7")
-        return
-    end
-    
-    if GetResourceState(resourceName) ~= 'started' and GetResourceState(resourceName) ~= 'starting' then
-        print("^1[rcore_clothing] Target resource '" .. resourceName .. "' is not running! Falling back to markers.^7")
-        useMarkers = true
-        return
-    end
+    Wait(500)
 
-    Wait(1000)
-
+    -- Ruhaboltok regisztrálása
     for index, shop in ipairs(Config.ClothingShops) do
-        CreateTargetZone(vec3(shop.pos.x, shop.pos.y, shop.pos.z + 1.0), 1.5, 3.0, 35.0, { {
-            num = 1,
-            type = "client",
-            event = "rcore_clothing:target",
-            icon = 'fas fa-tshirt',
-            label = _U("interact.shop"),
-            targeticon = 'fas fa-tshirt',
-            canInteract = function(entity, distance, data)
-                local myJob, _ = GetPlayersJobName()
+        local style = 'clothing'
+        local title = shop.label or _U("interact.shop")
 
-                if not shop.jobs or #shop.jobs == 0 then
-                    return true
-                end
+        if shop.type == 'barber' then
+            title = shop.label or _U("interact.barber")
+        end
 
-                for _, job in pairs(shop.jobs) do
-                    if job == myJob then
-                        return true
-                    end
-                end
+        local helpText = '~INPUT_CONTEXT~ ' .. title
+        local markerData = {
+            style = style,
+            coords = vec3(shop.pos.x, shop.pos.y, shop.pos.z),
+            title = title,
+            helpText = helpText,
+            event = 'rcore_clothing:marker:openShop',
+            args = { shopIndex = index },
+        }
 
-                return false
-            end,
-            drawColor = { 255, 255, 255, 255 },
-            successDrawColor = { 30, 144, 255, 255 },
-            eventAction = "open_clothing_shop",
-            color = Config.Checkpoint.color,
-            shopIndex = index,
-        } })
+        -- Job-restricted shop esetén visibility beállítás
+        if shop.jobs and #shop.jobs > 0 then
+            local jobPerms = {}
+            for _, job in ipairs(shop.jobs) do
+                jobPerms[job] = 0
+            end
+            markerData.visibility = { jobs = jobPerms }
+        end
+
+        exports['real_markers']:RegisterImageMarker('rcore_shop_' .. index, markerData)
     end
 
+    -- Munkahelyi öltözők regisztrálása
     for index, room in ipairs(Config.JobChangingRooms) do
-        CreateTargetZone(vec3(room.pos.x, room.pos.y, room.pos.z + 1.0), 1.5, 3.0, 35.0, { {
-            num = 1,
-            type = "client",
-            event = "rcore_clothing:target",
-            icon = 'fas fa-tshirt',
-            label = _U("interact.job_changing_room"),
-            targeticon = 'fas fa-tshirt',
-            canInteract = function(entity, distance, data)
-                local myJob, _ = GetPlayersJobName()
+        local title = room.label or _U("interact.job_changing_room")
+        local helpText = '~INPUT_CONTEXT~ ' .. title
 
-                for _, job in pairs(room.jobs) do
-                    if job == myJob then
-                        return true
-                    end
-                end
+        local jobPerms = {}
+        if room.jobs then
+            for _, job in ipairs(room.jobs) do
+                jobPerms[job] = 0
+            end
+        end
 
-                return false
-            end,
-            drawColor = { 255, 255, 255, 255 },
-            successDrawColor = { 30, 144, 255, 255 },
-            eventAction = "open_job_changing_room",
-            color = Config.Checkpoint.color,
-            shopIndex = index,
-        } })
+        exports['real_markers']:RegisterImageMarker('rcore_jobroom_' .. index, {
+            style = 'clothing',
+            coords = vec3(room.pos.x, room.pos.y, room.pos.z),
+            title = title,
+            helpText = helpText,
+            event = 'rcore_clothing:marker:openJobRoom',
+            args = { roomIndex = index },
+            visibility = { jobs = jobPerms },
+        })
     end
 
+    -- Öltözők regisztrálása
     for index, room in ipairs(Config.ChangingRooms) do
-        CreateTargetZone(vec3(room.pos.x, room.pos.y, room.pos.z + 1.0), 1.5, 3.0, 35.0, { {
-            num = 1,
-            type = "client",
-            event = "rcore_clothing:target",
-            icon = 'fas fa-tshirt',
-            label = _U("interact.changing_room"),
-            targeticon = 'fas fa-tshirt',
-            canInteract = function(entity, distance, data)
-                return true
-            end,
-            drawColor = { 255, 255, 255, 255 },
-            successDrawColor = { 30, 144, 255, 255 },
-            eventAction = "open_changing_room",
-            color = Config.Checkpoint.color,
-            shopIndex = index,
-        } })
+        local title = _U("interact.changing_room")
+        local helpText = '~INPUT_CONTEXT~ ' .. title
+
+        exports['real_markers']:RegisterImageMarker('rcore_changing_' .. index, {
+            style = 'clothing',
+            coords = vec3(room.pos.x, room.pos.y, room.pos.z),
+            title = title,
+            helpText = helpText,
+            event = 'rcore_clothing:marker:openChangingRoom',
+            args = { roomIndex = index },
+        })
+    end
+
+    markersRegistered = true
+    print("^2[rcore_clothing] Markerek sikeresen regisztrálva a real_markers rendszerbe (" .. #Config.ClothingShops .. " bolt, " .. #Config.JobChangingRooms .. " munkahelyi öltöző, " .. #Config.ChangingRooms .. " öltöző)^7")
+end)
+
+-- Takarítás resource stop-nál
+AddEventHandler('onResourceStop', function(resourceName)
+    if resourceName ~= GetCurrentResourceName() then return end
+    if not markersRegistered then return end
+    if GetResourceState('real_markers') ~= 'started' then return end
+
+    for index, _ in ipairs(Config.ClothingShops) do
+        exports['real_markers']:RemoveCustomMarker('rcore_shop_' .. index)
+    end
+    for index, _ in ipairs(Config.JobChangingRooms) do
+        exports['real_markers']:RemoveCustomMarker('rcore_jobroom_' .. index)
+    end
+    for index, _ in ipairs(Config.ChangingRooms) do
+        exports['real_markers']:RemoveCustomMarker('rcore_changing_' .. index)
     end
 end)
